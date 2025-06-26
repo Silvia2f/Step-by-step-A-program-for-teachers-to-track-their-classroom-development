@@ -73,8 +73,21 @@ def plot_category_progress(df):
     plt.tight_layout()
     plt.show()
 
+def plot_overall_distribution(df):
+    #Since this is for all the categories, first I count how many entries there are for each category
+    category_counts = df['Category'].value_counts()
+
+    #then I plot a pie chart
+    plt.figure(figsize=(6, 6))
+    plt.pie(category_counts, labels=category_counts.index, autopct='%1.1f%%', startangle=90)
+    plt.title("Overall Log Distribution by Category")
+    plt.tight_layout()
+    plt.show()
+
 if __name__ == "__main__":
     df = load_csv("data/test_data.csv")
     df = add_log_cli(df)
     print(tabulate(df, headers='keys', tablefmt='pretty', showindex=False))
     plot_category_progress(df)
+    plot_overall_distribution(df)
+
