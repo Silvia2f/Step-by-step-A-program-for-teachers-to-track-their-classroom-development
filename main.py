@@ -1,6 +1,8 @@
 import pandas as pd
 from datetime import datetime
 from tabulate import tabulate
+import matplotlib.pyplot as plt
+
 
 
 
@@ -62,6 +64,10 @@ def plot_category_progress(df):
     df_cat = df_cat.sort_values('parsed_date')
 
     print(df_cat[['parsed_date', 'Milestone']])  #Double checking before plotting
+
+    #Now I create the actual plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(df_cat['parsed_date'], df_cat['Milestone'], marker='o', linestyle='-', color='b')
 
 if __name__ == "__main__":
     df = load_csv("data/test_data.csv")
