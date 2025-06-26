@@ -77,3 +77,4 @@ if __name__ == "__main__":
     df = load_csv("data/test_data.csv")
     df = add_log_cli(df)
     print(tabulate(df, headers='keys', tablefmt='pretty', showindex=False))
+    plot_category_progress(df)
