@@ -47,6 +47,22 @@ def add_log_cli(df):
 
     return df
 
+def plot_category_progress(df):
+    #Below I am asking the user which category they want to plot
+    categories = list(df['Category'].unique())
+    category_list_str = ", ".join(f"{i+1} ({categories[i]})" for i in range(len(categories)))
+    choice = input(f"Pick a category to plot progress for:\n{category_list_str}\nEnter number: ")
+    selected_category = categories[int(choice) - 1]
+
+    #Then I filter the df for that category only
+    df_cat = df[df['Category'] == selected_category].copy()
+
+    #FInally I convert it in dates as suggested on feedback, since dates might not be in order
+    df_cat['parsed_date'] = pd.to_datetime(df_cat['Date'], format='%b. %d, %Y', errors='coerce')
+    df_cat = df_cat.sort_values('parsed_date')
+
+    print(df_cat[['parsed_date', 'Milestone']])  #Double checking before plotting
+
 if __name__ == "__main__":
     df = load_csv("data/test_data.csv")
     df = add_log_cli(df)
