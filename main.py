@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 
 def load_csv(filepath): #here I load the csv file and parse the dates
     df = pd.read_csv(filepath)
-    df['parsed_date'] = pd.to_datetime(df['Date'], format='%b. %d, %Y', errors='coerce')
-
+    df['parsed_date'] = pd.to_datetime(df['Date'], format='%b %d, %Y', errors='coerce')
     print(df.head()) #here I check if it loaded correclty
     return df
 
@@ -31,14 +30,15 @@ def add_log_cli(df):
     note = input("Enter a note: ")
 
     #then here I use date time to het the current date
-    date_now = datetime.now().strftime('%b. %d, %Y')
+    date_now = datetime.now().strftime('%b %d, %Y')
 
     #finally I create a dictionary that will become a new row in the dataframe ---ALSO UPDATED AFTER FEEDBACK
     new_row = {
     'Date': date_now,
     'Category': category,
     'Milestone': int(milestone),
-    'Note': note
+    'Note': note,
+    'parsed_date': datetime.now() #I brough this back because I was having issues with parsing the Date now
 }
 
     #then I append it to the actual df
@@ -60,7 +60,7 @@ def plot_category_progress(df):
     df_cat = df[df['Category'] == selected_category].copy()
 
     #FInally I convert it in dates as suggested on feedback, since dates might not be in order
-    df_cat['parsed_date'] = pd.to_datetime(df_cat['Date'], format='%b. %d, %Y', errors='coerce')
+    df_cat['parsed_date'] = pd.to_datetime(df_cat['Date'], format='%b %d, %Y', errors='coerce')
     df_cat = df_cat.sort_values('parsed_date')
 
     print(df_cat[['parsed_date', 'Milestone']])  #Double checking before plotting
@@ -68,6 +68,10 @@ def plot_category_progress(df):
     #Now I create the actual plot
     plt.figure(figsize=(10, 5))
     plt.plot(df_cat['parsed_date'], df_cat['Milestone'], marker='o', linestyle='-', color='b')
+
+    #lastly I show it, not sure why I didn't do it before my last commit
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     df = load_csv("data/test_data.csv")
