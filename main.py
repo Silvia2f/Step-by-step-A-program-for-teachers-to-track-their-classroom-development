@@ -13,8 +13,16 @@ def load_csv(filepath): #here I load the csv file and parse the dates
     df['parsed_date'] = pd.to_datetime(df['Date'], format='%b %d, %Y', errors='coerce').dt.date
     df.drop(columns=['Date'], inplace=True)
 
+    # Added this so if the flags arent in the csv they dont show up as NaN on the table
+    if 'Flag' not in df.columns:
+        df['Flag'] = ""
+    else:
+        df['Flag'] = df['Flag'].fillna("")
+
     print(df.head()) #here I check if it loaded correclty
     return df
+
+
 
 
 def add_log_cli(df):
@@ -31,6 +39,19 @@ def add_log_cli(df):
 
     #same for the milestone number
     milestone = input("Enter milestone number: ")
+
+    #Here I added a warning if the milestone is not higher than the current max in that category --For now its simple CLI but I will try to find a way to make it more "warning" in the version 2
+    existing = df[df['Category'] == category]
+    if not existing.empty:
+        current_max = existing['Milestone'].max()
+    if int(milestone) <= current_max:
+        print(f"Warning: Milestone {milestone} is not higher than the current max ({current_max}) in '{category}'")
+
+    #And here I make sure the flag column gets populated with the "regression" flags
+    flag = "" 
+    if not existing.empty and int(milestone) < current_max:
+        flag = "regression"
+
     note = input("Enter a note: ")
 
     #then here I use date time to het the current date
@@ -41,7 +62,8 @@ def add_log_cli(df):
     'Category': category,
     'Milestone': int(milestone),
     'Note': note,
-    'parsed_date': date_now 
+    'parsed_date': date_now,
+    'Flag': flag #I also wanted to add a flag column so when user inpuuts a lower milestone it flags it on the table
 }
 
     #then I append it to the actual df
