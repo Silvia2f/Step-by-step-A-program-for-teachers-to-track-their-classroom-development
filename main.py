@@ -93,6 +93,17 @@ def plot_category_progress(df):
     plt.figure(figsize=(10, 5))
     plt.plot(df_cat['parsed_date'], df_cat['Milestone'], marker='o', linestyle='-', color='b')
 
+    #Now I take care of the current category graph, I added a title and labels for the axis
+    plt.title(f"Progress in '{selected_category}' Category")
+    plt.xlabel("Date")
+    plt.ylabel("Milestone")
+
+    #As suggested on the feedback video, I added some simple math in this case is an overall average for each category 
+    average = df_cat['Milestone'].mean()
+    plt.axhline(average, color='gray', linestyle='--', linewidth=1) #and I tried to make it decently designed with a dashed line and a subtle color
+    plt.text(df_cat['parsed_date'].iloc[-1], average, f' Avg: {average:.1f}', color='gray', fontsize=9, va='bottom') #also I used iloc -1 to have the label always at the end of the chart 
+
+
     #lastly I show it, not sure why I didn't do it before my last commit
     plt.tight_layout()
     plt.show()
