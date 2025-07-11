@@ -85,3 +85,22 @@ current_max = existing['Milestone'].max() if not existing.empty else -1
 st.text(f"Previous milestone: {current_max}")
 #And lastly the input for the milestone number
 milestone = st.number_input("Enter milestone number", min_value=0, step=1)
+#then just like in the CLI version I check if the milestone is lower than the current max
+flag = ""
+if milestone < current_max:
+    flag = "regression"
+    st.warning(f"This milestone is lower than the current max ({current_max})")
+#I keep going with the note input
+note = st.text_input("Add a note")
+#and lastly I need a submit button here, and I also print the last entry added 
+if st.button("Add Log Entry"):
+    new_row = {
+        'Category': category,
+        'Milestone': int(milestone),
+        'Note': note,
+        'parsed_date': datetime.now().date(),
+        'Flag': flag
+    }
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    st.success("New log entry added!")
+    st.dataframe(df.tail(1))
