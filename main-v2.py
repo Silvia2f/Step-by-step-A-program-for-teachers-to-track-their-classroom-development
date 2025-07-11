@@ -9,9 +9,13 @@ import streamlit as st
 def load_csv(filepath): #here I load the csv file and parse the dates
     df = pd.read_csv(filepath)
 
-    #Updated after feedback B to drop the date column 
-    df['parsed_date'] = pd.to_datetime(df['Date'], format='%b %d, %Y', errors='coerce').dt.date
-    df.drop(columns=['Date'], inplace=True)
+    #Updated this if statement because the streamlit would give me an error with the date column. 
+    if 'Date' in df.columns:
+        df['parsed_date'] = pd.to_datetime(df['Date'], format='%b %d, %Y', errors='coerce').dt.date
+        df.drop(columns=['Date'], inplace=True)
+    else:
+        df['parsed_date'] = pd.to_datetime(df['parsed_date'], errors='coerce').dt.date
+
 
     # Added this so if the flags arent in the csv they dont show up as NaN on the table
     if 'Flag' not in df.columns:
@@ -24,13 +28,13 @@ def load_csv(filepath): #here I load the csv file and parse the dates
 
     #Now I replace the old CLI input with the Streamlit interface (at the bottom of my code)
 
-
-def plot_category_progress(df):
+#Now I am goign to update this as well so I have the plotting adapted to streamlit. For now I will keep matplotlib but later I will explore with Seaborn 
+def plot_category_progress(df): 
     #Below I am asking the user which category they want to plot
     categories = list(df['Category'].unique())
     category_list_str = ", ".join(f"{i+1} ({categories[i]})" for i in range(len(categories)))
-    choice = input(f"Pick a category to plot progress for:\n{category_list_str}\nEnter number: ")
-    selected_category = categories[int(choice) - 1]
+    selected_category = st.selectbox("Pick a category to plot progress for:", categories) #here I have updated the input to use streamlit instead of CLI
+
 
     #Then I filter the df for that category only
     df_cat = df[df['Category'] == selected_category].copy()
@@ -38,7 +42,12 @@ def plot_category_progress(df):
     #FInally I convert it in dates as suggested on feedback, since dates might not be in order
     df_cat = df_cat.sort_values('parsed_date')
 
-    print(df_cat[['parsed_date', 'Milestone']])  #Double checking before plotting
+    #I added this to check if the df is empty, so if it is I show a message instead of plotting and giving an error
+    if df_cat.empty:
+        st.info("No data available for this category.")
+        return
+
+    st.write(df_cat[['parsed_date', 'Milestone']]) #Same here, I adapted it to streamlit instead of printing it in the CLI
 
     #Now I create the actual plot
     plt.figure(figsize=(10, 5))
@@ -57,7 +66,8 @@ def plot_category_progress(df):
 
     #lastly I show it, not sure why I didn't do it before my last commit
     plt.tight_layout()
-    plt.show()
+    st.pyplot(plt.gcf()) #Replaced plt.show() with st.pyplot to have the plot in the Streamlit page
+
 
 def plot_overall_distribution(df):
     #Since this is for all the categories, first I count how many entries there are for each category
@@ -102,5 +112,10 @@ if st.button("Add Log Entry"):
         'Flag': flag
     }
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    df.to_csv("data/test_data.csv", index=False) #I have added this line so entries start getting saves and appear on the graph
+
     st.success("New log entry added!")
     st.dataframe(df.tail(1))
+#Now I add another button with a dropdown to actually view the graphs for each category
+with st.expander("View Category Graphs", expanded=False):
+    plot_category_progress(df)
