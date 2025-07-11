@@ -22,57 +22,8 @@ def load_csv(filepath): #here I load the csv file and parse the dates
     print(df.head()) #here I check if it loaded correclty
     return df
 
+    #Now I replace the old CLI input with the Streamlit interface (at the bottom of my code)
 
-
-
-def add_log_cli(df):
-    # Now I am working on the adding a log from an input
-    # I do that by first making an empty list to store the categories
-    categories = []
-    #then I loop through each of the df's categories---UPDATED AFTER FEEDBACK
-    categories = list(df['Category'].unique())
-
-    #this below is for the user to select from usinga number that corresponds to the category
-    category_list_str = ", ".join(f"{i+1} ({categories[i]})" for i in range(len(categories))) #updated this to show the category names when selecting
-    choice = input(f"Select from the following categories: {category_list_str}\nEnter category number: ")
-    category = categories[int(choice) - 1]
-
-    #same for the milestone number
-    milestone = input("Enter milestone number: ")
-
-    #Here I added a warning if the milestone is not higher than the current max in that category --For now its simple CLI but I will try to find a way to make it more "warning" in the version 2
-    existing = df[df['Category'] == category]
-    if not existing.empty:
-        current_max = existing['Milestone'].max()
-    if int(milestone) <= current_max:
-        print(f"Warning: Milestone {milestone} is not higher than the current max ({current_max}) in '{category}'")
-
-    #And here I make sure the flag column gets populated with the "regression" flags
-    flag = "" 
-    if not existing.empty and int(milestone) < current_max:
-        flag = "regression"
-
-    note = input("Enter a note: ")
-
-    #then here I use date time to het the current date
-    date_now = datetime.now().date()
-
-    #finally I create a dictionary that will become a new row in the dataframe ---ALSO UPDATED AFTER FEEDBACK
-    new_row = {
-    'Category': category,
-    'Milestone': int(milestone),
-    'Note': note,
-    'parsed_date': date_now,
-    'Flag': flag #I also wanted to add a flag column so when user inpuuts a lower milestone it flags it on the table
-}
-
-    #then I append it to the actual df
-    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True) #it didnt work with append so I am trying with concat instead
-    print("New log added:")
-    print(df.tail(1)) #to see if it got added
-
-
-    return df
 
 def plot_category_progress(df):
     #Below I am asking the user which category they want to plot
@@ -124,3 +75,13 @@ df = load_csv("data/test_data.csv")
 st.title("Step by Step: Child Progress Tracker")
 st.subheader("Current Data")
 st.dataframe(df)
+st.subheader("Add New Log Entry") #Fist I add a subheader to prompt the user
+#Then I first start by creating my dropdown for the categories the user can select
+categories = df['Category'].unique().tolist()
+category = st.selectbox("Select a Category", categories)
+#and then the "warning" in case they add a new milestone that is lower than the previous one entered
+existing = df[df['Category'] == category]
+current_max = existing['Milestone'].max() if not existing.empty else -1
+st.text(f"Previous milestone: {current_max}")
+#And lastly the input for the milestone number
+milestone = st.number_input("Enter milestone number", min_value=0, step=1)
