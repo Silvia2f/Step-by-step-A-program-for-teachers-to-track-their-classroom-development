@@ -78,7 +78,7 @@ def plot_overall_distribution(df):
     plt.pie(category_counts, labels=category_counts.index, autopct='%1.1f%%', startangle=90)
     plt.title("Overall Log Distribution by Category")
     plt.tight_layout()
-    plt.show()
+    st.pyplot(plt.gcf()) #replaced this too with the st.pyplot so it appears in streamlit and not in the CLI window
 
 #replaced older code with streamlit code 
 df = load_csv("data/test_data.csv")
@@ -119,3 +119,6 @@ if st.button("Add Log Entry"):
 #Now I add another button with a dropdown to actually view the graphs for each category
 with st.expander("View Category Graphs", expanded=False):
     plot_category_progress(df)
+#Lastly I add the pie chart button
+with st.expander("Display Pie Chart for Overall Progress", expanded=False):
+    plot_overall_distribution(df)
