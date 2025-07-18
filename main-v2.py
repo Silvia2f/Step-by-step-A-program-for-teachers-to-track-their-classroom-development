@@ -29,45 +29,40 @@ def load_csv(filepath): #here I load the csv file and parse the dates
 
     #Now I replace the old CLI input with the Streamlit interface (at the bottom of my code)
 
-#Now I am goign to update this as well so I have the plotting adapted to streamlit. For now I will keep matplotlib but later I will explore with Seaborn 
+#Updated this once again to start using Seaborn
 def plot_category_progress(df): 
-    #Below I am asking the user which category they want to plot
     categories = list(df['Category'].unique())
-    category_list_str = ", ".join(f"{i+1} ({categories[i]})" for i in range(len(categories)))
-    selected_category = st.selectbox("Pick a category to plot progress for:", categories) #here I have updated the input to use streamlit instead of CLI
+    selected_category = st.selectbox("Pick a category to plot progress for:", categories)
 
-
-    #Then I filter the df for that category only
     df_cat = df[df['Category'] == selected_category].copy()
-
-    #FInally I convert it in dates as suggested on feedback, since dates might not be in order
     df_cat = df_cat.sort_values('parsed_date')
 
-    #I added this to check if the df is empty, so if it is I show a message instead of plotting and giving an error
     if df_cat.empty:
         st.info("No data available for this category.")
         return
 
-    st.write(df_cat[['parsed_date', 'Milestone']]) #Same here, I adapted it to streamlit instead of printing it in the CLI
+    st.write(df_cat[['parsed_date', 'Milestone']])
 
-    #Now I create the actual plot
+    # Create the Seaborn-style plot
     plt.figure(figsize=(10, 5))
-    plt.plot(df_cat['parsed_date'], df_cat['Milestone'], marker='o', linestyle='-', color='b')
+    sns.set_theme(style="whitegrid")  # sets a clean background
+    
+    sns.lineplot(data=df_cat, x='parsed_date', y='Milestone', marker='o', linewidth=2.5)
 
-    #Now I take care of the current category graph, I added a title and labels for the axis
-    plt.title(f"Progress in '{selected_category}' Category")
+    # Add average line
+    average = df_cat['Milestone'].mean()
+    plt.axhline(average, color='gray', linestyle='--', linewidth=1)
+    plt.text(df_cat['parsed_date'].iloc[-1], average, f' Avg: {average:.1f}', 
+             color='gray', fontsize=9, va='bottom')
+
+    # Labels and title
+    plt.title(f"Progress in '{selected_category}' Category", fontsize=14)
     plt.xlabel("Date")
     plt.ylabel("Milestone")
-
-    #As suggested on the feedback video, I added some simple math in this case is an overall average for each category 
-    average = df_cat['Milestone'].mean()
-    plt.axhline(average, color='gray', linestyle='--', linewidth=1) #and I tried to make it decently designed with a dashed line and a subtle color
-    plt.text(df_cat['parsed_date'].iloc[-1], average, f' Avg: {average:.1f}', color='gray', fontsize=9, va='bottom') #also I used iloc -1 to have the label always at the end of the chart 
-
-
-    #lastly I show it, not sure why I didn't do it before my last commit
+    plt.xticks(rotation=45)
     plt.tight_layout()
-    st.pyplot(plt.gcf()) #Replaced plt.show() with st.pyplot to have the plot in the Streamlit page
+
+    st.pyplot(plt.gcf())
 
 
 def plot_overall_distribution(df):
@@ -87,6 +82,7 @@ st.title("Step by Step: Child Progress Tracker")
 st.subheader("Current Data")
 st.dataframe(df)
 
+#I chnaged the following lines of code (until the if statement) so I moved the entry log to the sidebar.
 st.sidebar.header("Add New Log Entry")
 categories = df['Category'].unique().tolist()
 category = st.sidebar.selectbox("Select a Category", categories)
