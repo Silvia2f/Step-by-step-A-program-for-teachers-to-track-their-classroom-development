@@ -3,6 +3,7 @@ from datetime import datetime
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 import streamlit as st 
+import seaborn as sns
 
 
 
@@ -85,25 +86,20 @@ df = load_csv("data/test_data.csv")
 st.title("Step by Step: Child Progress Tracker")
 st.subheader("Current Data")
 st.dataframe(df)
-st.subheader("Add New Log Entry") #Fist I add a subheader to prompt the user
-#Then I first start by creating my dropdown for the categories the user can select
+
+st.sidebar.header("Add New Log Entry")
 categories = df['Category'].unique().tolist()
-category = st.selectbox("Select a Category", categories)
-#and then the "warning" in case they add a new milestone that is lower than the previous one entered
+category = st.sidebar.selectbox("Select a Category", categories)
 existing = df[df['Category'] == category]
 current_max = existing['Milestone'].max() if not existing.empty else -1
-st.text(f"Previous milestone: {current_max}")
-#And lastly the input for the milestone number
-milestone = st.number_input("Enter milestone number", min_value=0, step=1)
-#then just like in the CLI version I check if the milestone is lower than the current max
+st.sidebar.text(f"Previous milestone: {current_max}")
+milestone = st.sidebar.number_input("Enter milestone number", min_value=0, step=1)
 flag = ""
 if milestone < current_max:
     flag = "regression"
-    st.warning(f"This milestone is lower than the current max ({current_max})")
-#I keep going with the note input
-note = st.text_input("Add a note")
-#and lastly I need a submit button here, and I also print the last entry added 
-if st.button("Add Log Entry"):
+    st.sidebar.warning(f"This milestone is lower than the current max ({current_max})")
+note = st.sidebar.text_input("Add a note")
+if st.sidebar.button("Add Log Entry"):
     new_row = {
         'Category': category,
         'Milestone': int(milestone),
@@ -116,6 +112,8 @@ if st.button("Add Log Entry"):
 
     st.success("New log entry added!")
     st.dataframe(df.tail(1))
+
+
 #Now I add another button with a dropdown to actually view the graphs for each category
 with st.expander("View Category Graphs", expanded=False):
     plot_category_progress(df)
