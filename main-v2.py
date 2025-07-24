@@ -56,7 +56,7 @@ def plot_category_progress(df):
              color='gray', fontsize=9, va='bottom')
 
     # Labels and title
-    plt.title(f"Progress in '{selected_category}' Category", fontsize=14)
+    plt.title(f"{df['Child'].iloc[0]}'s Progress in '{selected_category}' Category", fontsize=14) #Tweaked the title to include the child's name v2-B
     plt.xlabel("Date")
     plt.ylabel("Milestone")
     plt.xticks(rotation=45)
@@ -78,12 +78,21 @@ def plot_overall_distribution(df):
 
 #replaced older code with streamlit code 
 df = load_csv("data/test_data.csv")
+
+#Added this section for child selection filter V2-B
+child_options = df['Child'].unique().tolist()
+selected_child = st.selectbox("Select a child", child_options)
+df = df[df['Child'] == selected_child]
+
 st.title("Step by Step: Child Progress Tracker")
 st.subheader("Current Data")
 st.dataframe(df)
 
 #I chnaged the following lines of code (until the if statement) so I moved the entry log to the sidebar.
 st.sidebar.header("Add New Log Entry")
+child_name = st.sidebar.text_input("Child's name", value=selected_child)  #updated this as well so user can input the child name
+
+
 categories = df['Category'].unique().tolist()
 category = st.sidebar.selectbox("Select a Category", categories)
 existing = df[df['Category'] == category]
@@ -97,11 +106,12 @@ if milestone < current_max:
 note = st.sidebar.text_input("Add a note")
 if st.sidebar.button("Add Log Entry"):
     new_row = {
+        'Child': child_name, 
         'Category': category,
         'Milestone': int(milestone),
         'Note': note,
         'parsed_date': datetime.now().date(),
-        'Flag': flag
+        'Flag': flag,
     }
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv("data/test_data.csv", index=False) #I have added this line so entries start getting saves and appear on the graph
