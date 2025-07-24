@@ -77,25 +77,25 @@ def plot_overall_distribution(df):
     st.pyplot(plt.gcf()) #replaced this too with the st.pyplot so it appears in streamlit and not in the CLI window
 
 #replaced older code with streamlit code 
-df = load_csv("data/test_data.csv")
+df_full = load_csv("data/test_data.csv")
 
 #Added this section for child selection filter V2-B
-child_options = df['Child'].unique().tolist()
+child_options = df_full['Child'].unique().tolist()
 selected_child = st.selectbox("Select a child", child_options)
-df = df[df['Child'] == selected_child]
+df_filtered = df_full[df_full['Child'] == selected_child]
 
 st.title("Step by Step: Child Progress Tracker")
 st.subheader("Current Data")
-st.dataframe(df)
+st.dataframe(df_filtered)
 
 #I chnaged the following lines of code (until the if statement) so I moved the entry log to the sidebar.
 st.sidebar.header("Add New Log Entry")
 child_name = st.sidebar.text_input("Child's name", value=selected_child)  #updated this as well so user can input the child name
 
 
-categories = df['Category'].unique().tolist()
+categories = df_filtered['Category'].unique().tolist()
 category = st.sidebar.selectbox("Select a Category", categories)
-existing = df[df['Category'] == category]
+existing = df_filtered[df_filtered['Category'] == category]
 current_max = existing['Milestone'].max() if not existing.empty else -1
 st.sidebar.text(f"Previous milestone: {current_max}")
 milestone = st.sidebar.number_input("Enter milestone number", min_value=0, step=1)
@@ -113,16 +113,16 @@ if st.sidebar.button("Add Log Entry"):
         'parsed_date': datetime.now().date(),
         'Flag': flag,
     }
-    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-    df.to_csv("data/test_data.csv", index=False) #I have added this line so entries start getting saves and appear on the graph
+    df_full = pd.concat([df_full, pd.DataFrame([new_row])], ignore_index=True)
+    df_full.to_csv("data/test_data.csv", index=False)
+    df_filtered = df_full[df_full['Child'] == selected_child]  # Update filtered view
+    st.dataframe(df_filtered.tail(1))
 
-    st.success("New log entry added!")
-    st.dataframe(df.tail(1))
 
 
 #Now I add another button with a dropdown to actually view the graphs for each category
 with st.expander("View Category Graphs", expanded=False):
-    plot_category_progress(df)
+    plot_category_progress(df_filtered)
 #Lastly I add the pie chart button
 with st.expander("Display Pie Chart for Overall Progress", expanded=False):
-    plot_overall_distribution(df)
+    plot_overall_distribution(df_filtered)
