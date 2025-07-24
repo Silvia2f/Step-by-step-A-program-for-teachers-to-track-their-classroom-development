@@ -93,7 +93,7 @@ st.sidebar.header("Add New Log Entry")
 child_name = st.sidebar.text_input("Child's name", value=selected_child)  #updated this as well so user can input the child name
 
 
-categories = df_filtered['Category'].unique().tolist()
+categories = ['Mobility', 'Social Emotional', 'Cognitive', 'Language', 'Fine Motor'] #fixed small mistake here, it was not showing the categories correctly
 category = st.sidebar.selectbox("Select a Category", categories)
 existing = df_filtered[df_filtered['Category'] == category]
 current_max = existing['Milestone'].max() if not existing.empty else -1
@@ -118,11 +118,31 @@ if st.sidebar.button("Add Log Entry"):
     df_filtered = df_full[df_full['Child'] == selected_child]  # Update filtered view
     st.dataframe(df_filtered.tail(1))
 
-
-
 #Now I add another button with a dropdown to actually view the graphs for each category
 with st.expander("View Category Graphs", expanded=False):
     plot_category_progress(df_filtered)
 #Lastly I add the pie chart button
 with st.expander("Display Pie Chart for Overall Progress", expanded=False):
     plot_overall_distribution(df_filtered)
+
+#For my final touch I wanted to add a classroom overview which I decided to filter by category
+st.sidebar.markdown("---")
+st.sidebar.header("View Classroom Development")
+show_classroom_dev = st.sidebar.checkbox("Show classroom overview by category")
+
+if show_classroom_dev:
+    st.subheader("Classroom Development by Category")
+    selected_cat = st.selectbox("Select a category to compare children", categories)
+
+    cat_df = df_full[df_full['Category'] == selected_cat]
+    child_counts = cat_df['Child'].value_counts()
+
+    if child_counts.empty:
+        st.info("No data available for this category.")
+    else:
+        # Pie chart of child distribution for selected category
+        plt.figure(figsize=(6, 6))
+        plt.pie(child_counts, labels=child_counts.index, autopct='%1.1f%%', startangle=90)
+        plt.title(f"Distribution of Milestones in '{selected_cat}' Category")
+        plt.tight_layout()
+        st.pyplot(plt.gcf())
