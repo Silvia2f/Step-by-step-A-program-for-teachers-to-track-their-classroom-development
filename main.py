@@ -8,7 +8,7 @@ import seaborn as sns
 Step-by-Step: Child Progress Tracker
 
 A Streamlit app that lets educators log and visualize developmental milestones
-across categories like Mobility, Language, and Social Emotional Development.
+across categories like Mobility, Language, Social Emotional Development, and Fine Motor.
 """
 
 def load_csv(filepath):
