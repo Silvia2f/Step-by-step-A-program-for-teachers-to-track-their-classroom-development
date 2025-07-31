@@ -10,9 +10,13 @@ A Streamlit app to help teachers track developmental milestones for each child i
 
 Make sure your folder includes this:
 project-folder/
+
 ├── main.py
+
 ├── data/
+
 │ └── test_data.csv
+
 ├── requirements.txt
 
 The test_data.csv file already includes sample logs for three children so you can test it right away.
