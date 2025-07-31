@@ -76,12 +76,19 @@ def plot_overall_distribution(df):
     plt.tight_layout()
     st.pyplot(plt.gcf()) #replaced this too with the st.pyplot so it appears in streamlit and not in the CLI window
 
-#replaced older code with streamlit code 
 df_full = load_csv("data/test_data.csv")
 
-#Added this section for child selection filter V2-B
+# Here I initialize session state for selected child 
+if 'selected_child' not in st.session_state:
+    st.session_state.selected_child = df_full['Child'].iloc[0] if not df_full.empty else ""
+
 child_options = df_full['Child'].unique().tolist()
-selected_child = st.selectbox("Select a child", child_options)
+selected_child = st.selectbox(
+    "Select a child", 
+    child_options, 
+    index=child_options.index(st.session_state.selected_child) if st.session_state.selected_child in child_options else 0
+)
+
 df_filtered = df_full[df_full['Child'] == selected_child]
 
 st.title("Step by Step: Child Progress Tracker")
@@ -95,9 +102,8 @@ child_name = st.sidebar.text_input("Child's name", value=selected_child)  #updat
 
 categories = ['Mobility', 'Social Emotional', 'Cognitive', 'Language', 'Fine Motor'] #fixed small mistake here, it was not showing the categories correctly
 category = st.sidebar.selectbox("Select a Category", categories)
-existing = df_filtered[df_filtered['Category'] == category]
-current_max = existing['Milestone'].max() if not existing.empty else -1
-st.sidebar.text(f"Previous milestone: {current_max}")
+existing_logs = df_full[(df_full['Child'] == child_name) & (df_full['Category'] == category)]
+current_max = existing_logs['Milestone'].max() if not existing_logs.empty else -1 #had to change these two lines to fix the warning bug, it would show a warning even if it was a log for a new child
 milestone = st.sidebar.number_input("Enter milestone number", min_value=0, step=1)
 flag = ""
 if milestone < current_max:
@@ -115,8 +121,10 @@ if st.sidebar.button("Add Log Entry"):
     }
     df_full = pd.concat([df_full, pd.DataFrame([new_row])], ignore_index=True)
     df_full.to_csv("data/test_data.csv", index=False)
-    df_filtered = df_full[df_full['Child'] == selected_child]  # Update filtered view
-    st.dataframe(df_filtered.tail(1))
+
+    # Set selected child so the dropdown updates after saving
+    st.session_state.selected_child = child_name
+    st.rerun()
 
 #Now I add another button with a dropdown to actually view the graphs for each category
 with st.expander("View Category Graphs", expanded=False):
