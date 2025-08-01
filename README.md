@@ -44,9 +44,12 @@ The test_data.csv file already includes sample logs for three children so you ca
   - Compare all children by one category (via sidebar)
 
 # Known Issues
-- No filters, sorting, or validation for duplicate entries yet
-- Graphs only update when you rerun the app or re-expand them
-- Works with one local CSV file only — no database or multi-user support
+- Entries cannot be edited or deleted once saved
+- Duplicate entries are not prevented or flagged
+- No filters or search for past entries
+- Graphs only update when manually re-expanded or on rerun
+- App only supports one local CSV file (no database or multi-user support)
+- No backups or versioning of the CSV file
 
 # Acknowledgments
 This porject was created for HCI 584 (Summer 2025). The project's specs and early planning files are available in `doc/Alberti_HCI5840_ProjectSpecs.pdf`.
