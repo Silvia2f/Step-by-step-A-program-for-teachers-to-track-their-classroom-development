@@ -58,11 +58,12 @@ streamlit run main.py
 - `Flag` (string): Empty or `"regression"`
 
 ## 5. Known Issues
-
-- There is currently no way to edit or delete entries  
-- No filtering or search for past entries  
-- Duplicate entries are not being managed  
-- CSV is overwritten every save; no backups  
+- Entries cannot be edited or deleted once saved
+- Duplicate entries are not prevented or flagged
+- No filters or search for past entries
+- Graphs only update when manually re-expanded or on rerun
+- App only supports one local CSV file (no database or multi-user support)
+- No backups or versioning of the CSV file
 
 ## 6. Future Work
 
