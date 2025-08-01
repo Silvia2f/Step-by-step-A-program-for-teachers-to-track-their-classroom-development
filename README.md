@@ -9,15 +9,26 @@ A Streamlit app to help teachers track developmental milestones for each child i
 - Run the app with: `streamlit run main.py`
 
 Make sure your folder includes this:
+
 project-folder/
 
 ├── main.py
 
 ├── data/
 
-│ └── test_data.csv
+.   └── test_data.csv
+
+├── doc/
+
+.   └── Alberti_HCI5840_ReviewDoc_Version1.pdf
+
+.   └── Alberti_HCI5840_ProjectSpecs.pdf
+
+.   └── dev_guide.md
 
 ├── requirements.txt
+
+├── README.md
 
 The test_data.csv file already includes sample logs for three children so you can test it right away.
 
