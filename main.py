@@ -5,11 +5,23 @@ import streamlit as st
 import seaborn as sns
 
 """
-Step-by-Step: Child Progress Tracker
+main.py - Step-by-Step: Child Progress Tracker
 
-A Streamlit app that lets educators log and visualize developmental milestones
-across categories like Mobility, Language, Social Emotional Development, and Fine Motor.
+This Streamlit app allows educators to log and visualize developmental milestones
+for children in various categories like Mobility, Language, Social Emotional, and Fine Motor.
+
+Features:
+- Log entries manually
+- View progress per category
+- Classroom-wide comparisons using pie charts
+
+To run:
+    streamlit run main.py
+
+Author: Silvia Alberti
+Last updated: August 1st, 2025
 """
+
 
 def load_csv(filepath):
     """
@@ -21,11 +33,13 @@ def load_csv(filepath):
     Returns:
         pd.DataFrame: Cleaned DataFrame with 'parsed_date' and 'Flag' columns.
     """
+    
     df = pd.read_csv(filepath)
 
     #Updated this if statement because the streamlit would give me an error with the date column. 
     if 'Date' in df.columns:
         df['parsed_date'] = pd.to_datetime(df['Date'], format='%b %d, %Y', errors='coerce').dt.date
+        # GOTCHA: If the date format in the CSV is wrong or inconsistent, parsing may silently fail and return NaT.
         df.drop(columns=['Date'], inplace=True)
     else:
         df['parsed_date'] = pd.to_datetime(df['parsed_date'], errors='coerce').dt.date
@@ -44,6 +58,12 @@ def load_csv(filepath):
 def plot_category_progress(df): 
     """
     Display a line chart of milestone progress for a selected category.
+
+    Args:
+        df (pd.DataFrame): Filtered DataFrame for the selected child.
+
+    Returns:
+        None. Displays the chart using Streamlit.
     """
     categories = list(df['Category'].unique())
     selected_category = st.selectbox("Pick a category to plot progress for:", categories)
@@ -82,7 +102,14 @@ def plot_category_progress(df):
 
 def plot_overall_distribution(df):
     """
-    Display a pie chart showing overall log distribution by category.
+    Display a pie chart showing the distribution of milestone logs by category
+    for a selected child.
+
+    Args:
+        df (pd.DataFrame): Filtered DataFrame containing logs for one child.
+
+    Returns:
+        None. Displays a pie chart using Streamlit.
     """
     #Since this is for all the categories, first I count how many entries there are for each category
     category_counts = df['Category'].value_counts()
@@ -94,6 +121,7 @@ def plot_overall_distribution(df):
     plt.tight_layout()
     st.pyplot(plt.gcf()) 
 
+# === Load initial dataset ===
 df_full = load_csv("data/test_data.csv")
 
 #Here I initialize session state for selected child 
@@ -101,6 +129,8 @@ if 'selected_child' not in st.session_state:
     st.session_state.selected_child = df_full['Child'].iloc[0] if not df_full.empty else ""
 
 child_options = df_full['Child'].unique().tolist()
+
+# === Child selector ===
 selected_child = st.selectbox(
     "Select a child", 
     child_options, 
@@ -109,6 +139,7 @@ selected_child = st.selectbox(
 
 df_filtered = df_full[df_full['Child'] == selected_child]
 
+# === Display table ===
 st.title("Step by Step: Child Progress Tracker")
 st.subheader("Current Data")
 st.dataframe(df_filtered)
@@ -117,16 +148,14 @@ st.dataframe(df_filtered)
 st.sidebar.header("Add New Log Entry")
 child_name = st.sidebar.text_input("Child's name", value=selected_child)  #Allow manual input of child name
 
-
-
 categories = ['Mobility', 'Social Emotional', 'Cognitive', 'Language', 'Fine Motor'] #Fixed small mistake here, it was not showing the categories correctly
 category = st.sidebar.selectbox("Select a Category", categories)
 existing_logs = df_full[(df_full['Child'] == child_name) & (df_full['Category'] == category)]
-current_max = existing_logs['Milestone'].max() if not existing_logs.empty else -1 #Fix: use child_name to prevent incorrect warning when logging new child
+current_max = existing_logs['Milestone'].max() if not existing_logs.empty else -1 # Check existing logs for this child and category to find highest milestone
 milestone = st.sidebar.number_input("Enter milestone number", min_value=0, step=1)
 flag = ""
 if milestone < current_max:
-    flag = "regression"
+    flag = "regression" # Flag if milestone is lower than previous maximum
     st.sidebar.warning(f"This milestone is lower than the current max ({current_max})")
 note = st.sidebar.text_input("Add a note")
 if st.sidebar.button("Add Log Entry"):
@@ -145,6 +174,7 @@ if st.sidebar.button("Add Log Entry"):
     st.session_state.selected_child = child_name
     st.rerun()
 
+# === Plotting section ===
 #Section: category progress chart
 with st.expander("View Category Graphs", expanded=False):
     plot_category_progress(df_filtered)
@@ -157,6 +187,7 @@ st.sidebar.markdown("---")
 st.sidebar.header("View Classroom Development")
 show_classroom_dev = st.sidebar.checkbox("Show classroom overview by category")
 
+# === Classroom Overview ===
 if show_classroom_dev:
     st.subheader("Classroom Development by Category")
     selected_cat = st.selectbox("Select a category to compare children", categories)
