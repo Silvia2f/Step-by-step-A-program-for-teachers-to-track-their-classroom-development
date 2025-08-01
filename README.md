@@ -39,3 +39,6 @@ The test_data.csv file already includes sample logs for three children so you ca
 
 # Acknowledgments
 This porject was created for HCI 584 (Summer 2025). The project's specs and early planning files are available in `doc/Alberti_HCI5840_ProjectSpecs.pdf`.
+
+For more technical details, see the [Developer’s Guide](doc/dev_guide.md).
+
