@@ -1,11 +1,11 @@
 # Developer’s Guide — Step-by-Step: Child Progress Tracker
 
-This document is intended for developers who want to understand or extend the functionality of this app. It assumes the app is already running and that the user has reviewed the [README](../README.md).
+This document is intended for developers who want to understand or extend the functionality of this app. It assumes the app is already running and that the user has reviewed the README.md
 
 
 ## 1. Overview
 
-Step-by-Step is a lightweight Streamlit app designed for classroom teachers to track children's developmental milestones across key categories. It saves all data to a local CSV and provides simple visualizations like line charts and pie charts.
+Step-by-Step is a Streamlit app designed for classroom teachers to track children's developmental milestones across key categories. It saves all data to a local CSV and provides simple visualizations like line charts and pie charts.
 
 This guide describes the app’s internal logic, data structure, and areas for future development.
 
